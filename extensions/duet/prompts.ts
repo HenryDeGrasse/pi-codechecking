@@ -65,10 +65,10 @@ export function roleAddendum(role: "planner" | "critic" | "implementer" | "revie
 		"Use as many tool calls as you need to do thorough work.",
 		`Configured check IDs: ${checkIds}.`,
 		"",
-		"Tool usage reminders:",
-		"- The `edit` tool requires `oldText` (exact existing text to find) and `newText` (replacement). Always `read` the file first to get the exact text to match. Do NOT call edit with only a file path.",
-		"- Use `write` to create new files or fully overwrite existing ones.",
-		"- Use `read` to inspect file contents before editing.",
+		"Tool usage — IMPORTANT:",
+		"- `edit` requires a `path` and an `edits` array of `{oldText, newText}` replacements. Each oldText must match the file exactly. Always `read` the file first to copy the exact text to replace. Calling edit with only a path and no edits will fail.",
+		"- `write` creates new files or fully overwrites existing ones.",
+		"- `read` inspects file contents. Use it before editing to get exact text to match.",
 	];
 
 	if (role === "planner") {
