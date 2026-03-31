@@ -64,6 +64,11 @@ export function roleAddendum(role: "planner" | "critic" | "implementer" | "revie
 		"You are participating in a controller-orchestrated two-agent coding duet.",
 		"Use as many tool calls as you need to do thorough work.",
 		`Configured check IDs: ${checkIds}.`,
+		"",
+		"Tool usage reminders:",
+		"- The `edit` tool requires `oldText` (exact existing text to find) and `newText` (replacement). Always `read` the file first to get the exact text to match. Do NOT call edit with only a file path.",
+		"- Use `write` to create new files or fully overwrite existing ones.",
+		"- Use `read` to inspect file contents before editing.",
 	];
 
 	if (role === "planner") {
@@ -74,7 +79,7 @@ export function roleAddendum(role: "planner" | "critic" | "implementer" | "revie
 			"Explore the codebase to understand the project structure, existing patterns, and conventions.",
 			"Produce a concrete, step-by-step implementation plan.",
 			"Write the plan JSON to the file path specified in the prompt using the write tool.",
-			"On revision rounds, use the edit tool to update only what changed — do not rewrite the whole file.",
+			"On revision rounds, use the edit tool (read the file first, then provide exact oldText and newText) to update only what changed — do not rewrite the whole file.",
 			"Each step.requiredChecks must use only configured check IDs.",
 			"",
 			"Guidelines:",
@@ -282,7 +287,7 @@ export function planPrompt(goal: string, config: DuetConfig, planFile: string, p
 		return [
 			`Goal: ${goal}`,
 			researchLine,
-			`The current plan is in ${planFile}. Read it, address the critique below, then use the edit/write tool to update the file in place.`,
+			`The current plan is in ${planFile}. Read it, address the critique below, then use edit (with exact oldText/newText) or write to update the file in place.`,
 			"Only change what needs to change — do not rewrite the whole file.",
 			"",
 			"Critique to address:",
@@ -404,7 +409,7 @@ export function replanPrompt(
 	if (priorReview) {
 		lines.push(
 			"",
-			`The current replan draft is already in ${planFile}. Read it, address the critique below, then use the edit/write tool to update the file in place.`,
+			`The current replan draft is already in ${planFile}. Read it, address the critique below, then use edit (with exact oldText/newText) or write to update the file in place.`,
 			"Only change what needs to change — do not rewrite the whole file.",
 			"",
 			"Critique to address:",
@@ -521,7 +526,7 @@ export function importPlanPrompt(sourcePath: string, sourceText: string, config:
 		return [
 			`Source plan file: ${sourcePath}`,
 			"",
-			`The converted plan is in ${planFile}. Read it, address the critique, then use edit/write to update it.`,
+			`The converted plan is in ${planFile}. Read it, address the critique, then use edit (with exact oldText/newText) or write to update it.`,
 			"Only change what needs to change.",
 			"",
 			"Critique to address:",
