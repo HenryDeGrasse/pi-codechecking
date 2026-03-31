@@ -1,0 +1,9 @@
+node_modules/
+dist/
+output.txt
+
+# Duet run artifacts (local to each user's machine)
+.pi/duet/runs/
+
+# Pi session/todo data
+.pi/todos/
