@@ -2,21 +2,45 @@
 
 A pi extension for orchestrating two persistent model sessions that plan and implement in alternating review loops. Supports planning from scratch, importing existing plans with optional gap analysis, execution with live streaming, operator steering, and full run lifecycle management.
 
-## Quick start
+## Installation
+
+### From GitHub (recommended)
 
 ```bash
-# Run directly as an extension
-pi --no-extensions -e ./extensions/duet/index.ts
-
-# Or from an already running pi session in this repo
-/reload
-/duet
+pi install https://github.com/HenryDeGrasse/pi-codechecking
 ```
 
-Install as a pi package:
+This installs the extension globally. Restart pi or run `/reload` to activate.
+
+### Project-local install
+
+To scope the extension to a single project:
 
 ```bash
+pi install https://github.com/HenryDeGrasse/pi-codechecking -l
+```
+
+### From a local clone
+
+```bash
+git clone https://github.com/HenryDeGrasse/pi-codechecking.git
+cd pi-codechecking
+npm install
 pi install .
+```
+
+### Run without installing
+
+```bash
+pi --no-extensions -e ./extensions/duet/index.ts
+```
+
+## Quick start
+
+Once installed, start pi and run:
+
+```
+/duet
 ```
 
 ## Commands
