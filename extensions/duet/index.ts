@@ -618,6 +618,7 @@ async function runRelayStep(
 			for (const entry of relayInterventions) {
 				markInterventionDelivered(ctx.cwd, runId, entry.id, round, stepIndex);
 			}
+			notifyDeliveredInterventions(ctx, relayInterventions, round);
 			workspaceHooks?.setActiveChild(undefined);
 
 			previousAgentText = result.finalAssistantText;
@@ -656,6 +657,34 @@ async function runRelayStep(
 		const message = error instanceof Error ? error.message : String(error);
 		return { outcome: "error", finalRound: currentRound, errorMessage: message };
 	}
+}
+
+function notifyDeliveredInterventions(
+	ctx: ExtensionContext,
+	entries: InterventionEntry[],
+	round: number,
+): void {
+	if (!ctx.hasUI || entries.length === 0) return;
+	const childId = entries[0]?.target.childId;
+	if (!childId) return;
+
+	let steerCount = 0;
+	let noteCount = 0;
+	for (const entry of entries) {
+		if (entry.target.intent === "steer") steerCount++;
+		else noteCount++;
+	}
+
+	let summary = "";
+	if (steerCount > 0 && noteCount > 0) {
+		summary = `${entries.length} queued intervention${entries.length === 1 ? "" : "s"} (${steerCount} steer, ${noteCount} note${noteCount === 1 ? "" : "s"})`;
+	} else if (steerCount > 0) {
+		summary = steerCount === 1 ? "steer" : `${steerCount} queued steers`;
+	} else {
+		summary = noteCount === 1 ? "note" : `${noteCount} queued notes`;
+	}
+
+	ctx.ui.notify(`Delivered ${summary} to ${childId} for round ${round}.`, "info");
 }
 
 export default function duetExtension(pi: ExtensionAPI): void {
@@ -2164,6 +2193,7 @@ export default function duetExtension(pi: ExtensionAPI): void {
 				for (const entry of plannerInterventions) {
 					markInterventionDelivered(ctx.cwd, actualRunId, entry.id, round, -1);
 				}
+				notifyDeliveredInterventions(ctx, plannerInterventions, round);
 				setState(ctx, { ...state, activeChild: undefined });
 
 				const criticInterventions = getPendingInterventionsFor(ctx.cwd, actualRunId, "B-critic");
@@ -2190,6 +2220,7 @@ export default function duetExtension(pi: ExtensionAPI): void {
 				for (const entry of criticInterventions) {
 					markInterventionDelivered(ctx.cwd, actualRunId, entry.id, round, -1);
 				}
+				notifyDeliveredInterventions(ctx, criticInterventions, round);
 				setState(ctx, { ...state, activeChild: undefined });
 
 				autoRetryAttempts = 0;
@@ -3024,6 +3055,7 @@ export default function duetExtension(pi: ExtensionAPI): void {
 				for (const entry of plannerInterventions) {
 					markInterventionDelivered(ctx.cwd, actualRunId, entry.id, round, -1);
 				}
+				notifyDeliveredInterventions(ctx, plannerInterventions, round);
 				setState(ctx, { ...state, activeChild: undefined });
 
 				const criticInterventions = getPendingInterventionsFor(ctx.cwd, actualRunId, "B-critic");
@@ -3050,6 +3082,7 @@ export default function duetExtension(pi: ExtensionAPI): void {
 				for (const entry of criticInterventions) {
 					markInterventionDelivered(ctx.cwd, actualRunId, entry.id, round, -1);
 				}
+				notifyDeliveredInterventions(ctx, criticInterventions, round);
 				setState(ctx, { ...state, activeChild: undefined });
 
 				autoRetryAttempts = 0;
@@ -3269,6 +3302,7 @@ export default function duetExtension(pi: ExtensionAPI): void {
 			for (const entry of replannerInterventions) {
 				markInterventionDelivered(ctx.cwd, runId, entry.id, round, stepIndex);
 			}
+			notifyDeliveredInterventions(ctx, replannerInterventions, round);
 			setState(ctx, { ...state, activeChild: undefined });
 
 			const replanCriticInterventions = getPendingInterventionsFor(ctx.cwd, runId, "B-critic");
@@ -3294,6 +3328,7 @@ export default function duetExtension(pi: ExtensionAPI): void {
 			for (const entry of replanCriticInterventions) {
 				markInterventionDelivered(ctx.cwd, runId, entry.id, round, stepIndex);
 			}
+			notifyDeliveredInterventions(ctx, replanCriticInterventions, round);
 			setState(ctx, { ...state, activeChild: undefined });
 
 			autoRetryAttempts = 0;
@@ -3497,6 +3532,7 @@ export default function duetExtension(pi: ExtensionAPI): void {
 				for (const entry of implInterventions) {
 					markInterventionDelivered(ctx.cwd, runId, entry.id, iteration, stepIndex);
 				}
+				notifyDeliveredInterventions(ctx, implInterventions, iteration);
 				setState(ctx, { ...state, activeChild: undefined });
 
 				// Between sides: run controller gates, show progress in workspace
@@ -3531,6 +3567,7 @@ export default function duetExtension(pi: ExtensionAPI): void {
 				for (const entry of revInterventions) {
 					markInterventionDelivered(ctx.cwd, runId, entry.id, iteration, stepIndex);
 				}
+				notifyDeliveredInterventions(ctx, revInterventions, iteration);
 				setState(ctx, { ...state, activeChild: undefined });
 
 				autoRetryAttempts = 0;
